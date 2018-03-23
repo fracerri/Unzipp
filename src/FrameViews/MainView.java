@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -23,6 +24,7 @@ public class MainView extends JFrame implements ActionListener  {
 	JButton unzipButton, confButton, clearButton;
 	JTextArea log;
 	JFileChooser fc = new JFileChooser();
+	JCheckBox checkBoxCanc;
 
       public void createMainView() {    
       fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -54,6 +56,10 @@ public class MainView extends JFrame implements ActionListener  {
       
       //Add the buttons and the log to this panel.
       frame.add(buttonPanel, BorderLayout.PAGE_START);
+      
+      checkBoxCanc = new JCheckBox("Cancel content folder before unzip");
+      frame.add(checkBoxCanc);
+      frame.setVisible(true);
       
       log = new JTextArea(5,20);
       log.setMargin(new Insets(5,5,5,5));
@@ -87,7 +93,7 @@ public class MainView extends JFrame implements ActionListener  {
 						 log.append(Utils.getTimestamp() + " " +"Output directory path not configured "+ Utils.newline);
 					}
 					else{
-						Utils.unzipFile(dir.getPath(),outputDir+ File.separator + dir.getName());
+						Utils.unzipFile(dir.getPath(),outputDir+ File.separator + dir.getName(), checkBoxCanc.isSelected());
 						 log.append(Utils.getTimestamp() + " " +"Unzipped: " + dir.getName() + "." + Utils.newline);
 					}
 					log.setCaretPosition(log.getDocument().getLength()); 
@@ -103,14 +109,22 @@ public class MainView extends JFrame implements ActionListener  {
     		   
     		   if(cV == null) {
     			   cV = new ConfView(); 
-    			   cV.createConfView(log);
+    			   try {
+					cV.createConfView(log);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
     		   }else {
     			 //remove the previous JFrame
     			   cV.setVisible(false);
     			   cV.dispose();
                    //create a new one
     			   cV = new ConfView();
-    			   cV.createConfView(log);
+    			   try {
+					cV.createConfView(log);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
     		   }
           }else  if (e.getSource() == clearButton) {
         	  log.setText("");

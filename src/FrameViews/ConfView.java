@@ -1,36 +1,48 @@
 package FrameViews;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 
 public class ConfView extends JFrame implements ActionListener {
-	//JTextField input;
+	JTextField input;
 	JTextArea inputArea;
-	JButton enterButton, closeButton;
+	JButton closeButton,addFolder;
 	 JFrame frame = new JFrame();
 	 JTextArea log;
-	 //private JLabel label;
-	 //private static String labelString = "Output directory: ";
+	 private JLabel label;
+	 private static String labelString = "Output directory: ";
+	 JFileChooser fc;
+	 private final Color COLOR_CUSTOM = new Color(20,95,158);
 	
       /**
 	 * 
 	 */
 	private static final long serialVersionUID = 7877521850005758440L;
-	public void createConfView(JTextArea log) {   
+	public void createConfView(JTextArea log) throws IOException {   
+		
+	//Create file chooser
+	 fc = new JFileChooser();
+	 fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		
       this.log = log;
-      inputArea = new JTextArea(20,50);
-      inputArea.setMargin(new Insets(5,5,5,5));
-      inputArea.setEditable(true);
+      inputArea = new JTextArea(20,60);
+      inputArea.setMargin(new Insets(10,10,10,10));
+      inputArea.setEditable(false);
       try {
     		inputArea.append(Utils.getConfFileBody());
     	} catch (IOException e) {
@@ -41,32 +53,41 @@ public class ConfView extends JFrame implements ActionListener {
       frame.setTitle("Configuration");
       frame.setSize(300,300);
       frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    
-       //input = new JTextField(15);
-     //  input.addActionListener(this);
-       //input.requestFocus(); 
-       //label = new JLabel(labelString);
-       //label.setLabelFor(input);
+      ImageIcon imgIcon = Utils.createImageIcon(MainView.class,"images/conf.png");
+      frame.setIconImage(imgIcon.getImage());
+      frame.getContentPane().setBackground(Color.black);
+      
+      input = new JTextField(30);
+      input.disable();
+      input.setText(Utils.readOutputDirFromConfFile());
+      label = new JLabel(labelString);
+      label.setLabelFor(input);
+      addFolder = new JButton("Update output folder", Utils.createImageIcon(MainView.class,"images/folder.png"));
+      addFolder.addActionListener(this);
+      addFolder.setSize(10, 10);
+      
+      JPanel inputPanel = new JPanel();
+      inputPanel.add(label);
+      inputPanel.add(input);
+      inputPanel.add(addFolder);
+      
+     
       
       //Button
-      enterButton = new JButton("Enter", Utils.createImageIcon(ConfView.class,"images/enter.png"));
-      enterButton.addActionListener(this);
-      enterButton.setSize(50, 20);
-      
       closeButton = new JButton("close", Utils.createImageIcon(ConfView.class,"images/close.png"));
       closeButton.addActionListener(this);
       closeButton.setSize(50, 20);
       
+      
       //For layout purposes, put the buttons in a separate panel
       JPanel buttonPanel = new JPanel();
-     // buttonPanel.add(label);
-     // buttonPanel.add(input);
-      
-      buttonPanel.add(enterButton);
       buttonPanel.add(closeButton);
       
-      //Add the buttons and the log to this panel.
-      frame.add(logScrollPane, BorderLayout.CENTER);
+      inputPanel.setBackground(COLOR_CUSTOM);
+      buttonPanel.setBackground(COLOR_CUSTOM);
+     
+      frame.add(inputPanel, BorderLayout.PAGE_START);
+      frame.add(logScrollPane);
       frame.add(buttonPanel, BorderLayout.PAGE_END);
       
       frame.pack();
@@ -77,33 +98,29 @@ public class ConfView extends JFrame implements ActionListener {
 	
 	
       public void actionPerformed(ActionEvent e) {
-    	  if (e.getSource() == enterButton) {
-    		  File dir = new File(Utils.CONF_DIR_PATH);
-      		try {
-  			if(!dir.exists()){
-  				dir.mkdirs();
-  			}
-  			File file = new File(Utils.CONF_DIR_PATH+File.separator+Utils.CONF_FILE);
-  			if(!file.exists()){
-  				file.createNewFile();
-  			}
-  			
-  			//String inputString = input.getText();	
-  			//Utils.setOutputDirToConfFile(inputString);
-  			Utils.updateConfFile(inputArea.getText());
-  			log.append(Utils.getTimestamp() + " " + "Confuration file updated.");
-  			//inputArea.setText("");
-  			//inputArea.append(Utils.getConfFileBody());
-  			//input.setText("");
-  				} catch (IOException ex) {
-  					ex.printStackTrace();
-  				}
-    	  }
-    	  else if(e.getSource() == closeButton){
+    
+    	   if(e.getSource() == closeButton){
     		  frame.setVisible(false);
     	  }
-    	 
+    	  else if (e.getSource() == addFolder) {
+      		int returnVal = fc.showOpenDialog(ConfView.this);
+  		  
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+          
+                File dir = fc.getSelectedFile();
+                try {
+                	input.setText(dir.getPath());
+					Utils.updateConfFile(dir.getPath());
+					inputArea.setText("");
+					inputArea.append(Utils.getConfFileBody());
+				} catch (IOException e1) {
+					log.append(Utils.getTimestamp() + " " +"Error during configuration file update. "+ Utils.newline);
+				}
+               
+	  			log.append(Utils.getTimestamp() + " " + "Confuration file updated.");
+            }
 			
+    	  }
 }
       
 }

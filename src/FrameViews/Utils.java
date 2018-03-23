@@ -16,7 +16,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 public class Utils {
@@ -34,9 +33,10 @@ public class Utils {
 	 * 
 	 * @param zipFilePath
 	 * @param outputDir
+	 * @param isToCancel 
 	 * @throws IOException 
 	 */
-	public static void unzipFile(String zipFilePath, String outputDir) throws IOException{
+	public static void unzipFile(String zipFilePath, String outputDir, boolean isToCancel) throws IOException{
 		
 		BufferedOutputStream out;
 		InputStream in;
@@ -47,6 +47,12 @@ public class Utils {
 		ZipFile tmp = zipFile;
 		entries = zipFile.entries();
 		byte[] buffer = new byte[1024];
+		
+		//Empty output directory
+		if(isToCancel == true) {
+			deleteFolderContent(outputDir);
+		}
+		
 		if (zipFile.size() != 0) {
 
 			// Create parent directory if not exists
@@ -81,6 +87,29 @@ public class Utils {
 		}
 	}
 	
+	/**
+	 * Delete folder content
+	 * @param outputDir
+	 */
+	protected static void deleteFolderContent(String outputDir) {
+		File directory = new File(outputDir);
+		deleteFolder(directory);
+	}
+	
+	public static void deleteFolder(File folder) {
+	    File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	                deleteFolder(f);
+	            } else {
+	                f.delete();
+	            }
+	        }
+	    }
+	    folder.delete();
+	}
+
 	/**
      * Extracts a zip entry (file entry)
      * @param zipIn
@@ -123,7 +152,7 @@ public class Utils {
 	public static void updateConfFile(String inputString) throws IOException{
 		BufferedWriter br = new BufferedWriter(new FileWriter(CONF_DIR_PATH+File.separator+CONF_FILE));
 		try {
-		    br.write(inputString);
+		    br.write(OUTPUT_DIR_CONF_PREFIX+inputString);
 		} finally {
 		    br.close();
 		}
