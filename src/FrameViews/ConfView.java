@@ -21,18 +21,15 @@ import javax.swing.JTextField;
 public class ConfView extends JFrame implements ActionListener {
 	JTextField input;
 	JTextArea inputArea;
-	JButton closeButton,addFolder;
-	 JFrame frame = new JFrame();
-	 JTextArea log;
-	 private JLabel label;
-	 private static String labelString = "Output directory: ";
-	 JFileChooser fc;
-	 private final Color COLOR_CUSTOM = new Color(20,95,158);
+	JButton closeButton, addFolder;
+	JFrame frame = new JFrame();
+	JTextArea log;
+	private JLabel label;
+	private static String labelString = "Output directory: ";
+	JFileChooser fc;
 	
-      /**
-	 * 
-	 */
 	private static final long serialVersionUID = 7877521850005758440L;
+	
 	public void createConfView(JTextArea log) throws IOException {   
 		
 	//Create file chooser
@@ -48,6 +45,7 @@ public class ConfView extends JFrame implements ActionListener {
     	} catch (IOException e) {
     		e.printStackTrace();
     	}
+      inputArea.setBackground(Utils.COLOR_AREA);
       JScrollPane logScrollPane = new JScrollPane(inputArea);
       
       frame.setTitle("Configuration");
@@ -62,7 +60,7 @@ public class ConfView extends JFrame implements ActionListener {
       input.setText(Utils.readOutputDirFromConfFile());
       label = new JLabel(labelString);
       label.setLabelFor(input);
-      addFolder = new JButton("Update output folder", Utils.createImageIcon(MainView.class,"images/folder.png"));
+      addFolder = new JButton("Insert/Update output folder", Utils.createImageIcon(MainView.class,"images/folder.png"));
       addFolder.addActionListener(this);
       addFolder.setSize(10, 10);
       
@@ -71,20 +69,17 @@ public class ConfView extends JFrame implements ActionListener {
       inputPanel.add(input);
       inputPanel.add(addFolder);
       
-     
-      
       //Button
       closeButton = new JButton("close", Utils.createImageIcon(ConfView.class,"images/close.png"));
       closeButton.addActionListener(this);
       closeButton.setSize(50, 20);
       
-      
       //For layout purposes, put the buttons in a separate panel
       JPanel buttonPanel = new JPanel();
       buttonPanel.add(closeButton);
       
-      inputPanel.setBackground(COLOR_CUSTOM);
-      buttonPanel.setBackground(COLOR_CUSTOM);
+      inputPanel.setBackground(Utils.COLOR_BACKGROUND);
+      buttonPanel.setBackground(Utils.COLOR_BACKGROUND);
      
       frame.add(inputPanel, BorderLayout.PAGE_START);
       frame.add(logScrollPane);
@@ -97,31 +92,30 @@ public class ConfView extends JFrame implements ActionListener {
    }
 	
 	
-      public void actionPerformed(ActionEvent e) {
-    
-    	   if(e.getSource() == closeButton){
-    		  frame.setVisible(false);
-    	  }
-    	  else if (e.getSource() == addFolder) {
-      		int returnVal = fc.showOpenDialog(ConfView.this);
-  		  
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-          
-                File dir = fc.getSelectedFile();
-                try {
-                	input.setText(dir.getPath());
+	public void actionPerformed(ActionEvent e) {
+
+		if (e.getSource() == closeButton) {
+			frame.setVisible(false);
+		} else if (e.getSource() == addFolder) {
+			int returnVal = fc.showOpenDialog(ConfView.this);
+
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+
+				File dir = fc.getSelectedFile();
+				try {
+					input.setText(dir.getPath());
 					Utils.updateConfFile(dir.getPath());
 					inputArea.setText("");
 					inputArea.append(Utils.getConfFileBody());
 				} catch (IOException e1) {
-					log.append(Utils.getTimestamp() + " " +"Error during configuration file update. "+ Utils.newline);
+					log.append(Utils.getTimestamp() + " " + "Error during configuration file update. " + Utils.newline);
 				}
-               
-	  			log.append(Utils.getTimestamp() + " " + "Confuration file updated.");
-            }
-			
-    	  }
-}
+
+				log.append(Utils.getTimestamp() + " " + "Confuration file updated.");
+			}
+
+		}
+	}
       
 }
       

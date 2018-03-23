@@ -1,5 +1,6 @@
 package FrameViews;
 
+import java.awt.Color;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -28,6 +29,8 @@ public class Utils {
 	public static final  String newline = "\n";
 	private static final int BUFFER_SIZE = 4096;
 	public static SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yy-HH.mm.ss");
+	public final static Color COLOR_BACKGROUND = new Color(199, 218, 234);
+	public final static Color COLOR_AREA = new Color(223, 232, 240);
 	
 	/**
 	 * 
@@ -134,6 +137,12 @@ public class Utils {
 	 */
 	public static String readOutputDirFromConfFile() throws IOException{
 		String path = "";
+		File confFile = new File(CONF_DIR_PATH+File.separator+CONF_FILE);
+		
+		if(confFile.exists()) {
+			confFile.createNewFile();
+		
+		
 		BufferedReader br = new BufferedReader(new FileReader(CONF_DIR_PATH+File.separator+CONF_FILE));
 		try {
 		    String line = br.readLine();
@@ -146,15 +155,28 @@ public class Utils {
 		} finally {
 		    br.close();
 		}
+		
+		}
 		return path;
 	}
 	
-	public static void updateConfFile(String inputString) throws IOException{
-		BufferedWriter br = new BufferedWriter(new FileWriter(CONF_DIR_PATH+File.separator+CONF_FILE));
+	public static void updateConfFile(String inputString) throws IOException {
+
+		File dir = new File(CONF_DIR_PATH);
+
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+		File file = new File(CONF_DIR_PATH + File.separator + CONF_FILE);
+		if (!file.exists()) {
+			file.createNewFile();
+		}
+
+		BufferedWriter br = new BufferedWriter(new FileWriter(CONF_DIR_PATH + File.separator + CONF_FILE));
 		try {
-		    br.write(OUTPUT_DIR_CONF_PREFIX+inputString);
+			br.write(OUTPUT_DIR_CONF_PREFIX + inputString);
 		} finally {
-		    br.close();
+			br.close();
 		}
 	}
 	
